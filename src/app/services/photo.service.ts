@@ -59,6 +59,26 @@ export class PhotoService {
     }
   }
 
+  public async deletePicture(photo: UserPhoto, position: number) {
+    // Remove this photo from the Photos reference data array
+    this.photos.splice(position, 1);
+  
+    // Update photos array cache by overwriting the existing photo array
+    Storage.set({
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos)
+    });
+  
+    // delete photo file from filesystem
+    const filename = photo.filePath
+                        .substr(photo.filePath.lastIndexOf('/') + 1);
+  
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Data
+    });
+  }
+
   private async savePicture(photo:Photo){
     // convert to base 64
     const base64Data = await this.readAsBase64(photo);
